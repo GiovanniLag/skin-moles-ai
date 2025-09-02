@@ -1,9 +1,8 @@
 from __future__ import annotations
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from modules import BasicBlockSE, ConvBNAct, GeM
+from .modules import BasicBlockSE, ConvBNAct, GeM
 
 
 class DermResNetSE(nn.Module):
@@ -48,6 +47,7 @@ class DermResNetSE(nn.Module):
         self.stage4 = self._make_stage(in_ch, widths[3], layers[3], stride=2, act=act, se_ratio=se_ratio)
         self.out_ch = widths[3]
         self.pool = GeM(p=3.0, trainable=True) # This corresponds to y representation for the BYOL
+        self.feat_dim = self.out_ch
         self.head = nn.Sequential(
             nn.LayerNorm(self.out_ch),
             nn.Dropout(0.2),
@@ -93,6 +93,12 @@ class DermResNetSE(nn.Module):
         x = self.stage3(x)
         x = self.stage4(x)  # last conv feature map (for CAM)
         return x
+    
+    def forward_backbone(self, x):
+        """Used for BYOL pretraining: returns pooled features only."""
+        feats = self.forward_features(x)
+        feats = self.pool(feats)
+        return feats
 
     def forward(self, x):
         feat_map = self.forward_features(x)
@@ -102,3 +108,44 @@ class DermResNetSE(nn.Module):
             bin_logits = self.bin_head(feats)
             return logits, bin_logits, feats, feat_map
         return logits, feats, feat_map
+    
+
+
+if __name__ == "__main__":
+    # Test the model
+    import sys
+    import os
+    # Add: this_file parent / data to the Python path
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    from data.datasets import ISICDataset
+    from data.augmentations import get_val_transforms
+    from torch.utils.data import DataLoader
+
+    model = DermResNetSE(layers=[2,2,2,2], widths=[64,128,256,512], num_classes=8, aux_binary=True)
+    print(model)
+
+    dataset = ISICDataset(csv_path='data/isic2019/isic_2019_common.csv',
+                          root_dir='data/isic2019/ISIC_2019_Training_Input/ISIC_2019_Training_Input',
+                          transform=get_val_transforms(img_size=384),
+                          labels_map={
+                                'NV': 0,
+                                'MEL': 1,
+                                'BCC': 2,
+                                'BKL': 3,
+                                'AK': 4,
+                                'SCC': 5,
+                                'VASC': 6,
+                                'DF': 7
+                            }
+                         )
+
+    dataloader = DataLoader(dataset, batch_size=32, shuffle=True, num_workers=4)
+
+    # Test the model
+    batch = next(iter(dataloader))
+    images, labels = batch['image'], batch['labels']
+    outputs = model(images)
+    print(f"output shapes: {[o.shape for o in outputs]}")
+
+    back_bone_feats = model.forward_backbone(images)
+    print(f"backbone pooled features shape: {back_bone_feats.shape}")

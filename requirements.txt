@@ -9,6 +9,8 @@ albumentations
 opencv-python
 tqdm
 ipywidgets
+lightning
+tensorboard
 
 # If on windows, please manually install pytorch from https://pytorch.org/get-started/locally/
 torch

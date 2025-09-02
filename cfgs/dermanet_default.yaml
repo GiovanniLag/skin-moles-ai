@@ -1,0 +1,7 @@
+model:
+  layers: [2, 2, 2, 2]
+  widths: [64, 128, 256, 512]
+  num_classes: 8
+  act: "silu"
+  se_ratio: 0.25
+  aux_binary: false

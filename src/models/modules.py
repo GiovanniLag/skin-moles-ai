@@ -16,7 +16,7 @@ def _act(name: str):
 class ConvBNAct(nn.Module):
     """Convolution + BatchNorm + Activation"""
     def __init__(self, in_ch, out_ch, k=3, s=1, p=None, groups=1, act='silu', bn=True):
-        """Initialize ConvBNAct.
+        """Initialize ConvBNAct. Uses Convolution with specified parameters, followed by optional BatchNorm and activation.
 
         Parameters
         ----------
