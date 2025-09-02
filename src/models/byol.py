@@ -165,19 +165,44 @@ class BYOL(pl.LightningModule):
 
     def configure_optimizers(self):
         opt_name = str(self.hparams.optimizer).lower()
-        params = list(self.encoder.parameters()) + list(self.projector.parameters()) + list(self.predictor.parameters())
+        # Exclude GeM pooling parameter `p` from weight decay (it is a scale-like parameter)
+        # Locate GeM p parameter if present: encoder -> backbone -> pool -> p
+        gem_p = None
+        try:
+            gem_p = self.encoder.backbone.pool.p
+        except Exception:
+            print("WARNING: Could not access GeM pooling parameter `p` in the backbone. Is GeM pooling used?")
+            gem_p = None
+
+        # Build parameter groups: keep `p` with weight_decay=0.0, and apply configured weight decay to the rest.
+        other_params = []
+        gem_params = []
+        for name, param in list(self.encoder.named_parameters()):
+            if not param.requires_grad:
+                continue
+            # match the GeM p parameter by identity (param is gem_p)
+            if gem_p is not None and param is gem_p:
+                gem_params.append(param)
+            else:
+                other_params.append(param)
+
+        # include projector and predictor parameters in the 'other' group
+        other_params += [p for p in self.projector.parameters() if p.requires_grad]
+        other_params += [p for p in self.predictor.parameters() if p.requires_grad]
+
+        if gem_params:
+            params_groups = [
+                {'params': other_params, 'weight_decay': float(self.hparams.weight_decay)},
+                {'params': gem_params, 'weight_decay': 0.0},
+            ]
+        else:
+            params_groups = [{'params': other_params, 'weight_decay': float(self.hparams.weight_decay)}]
 
         if opt_name == 'adamw':
-            optimizer = torch.optim.AdamW(params, lr=self.hparams.lr, weight_decay=self.hparams.weight_decay)
+            optimizer = torch.optim.AdamW(params_groups, lr=self.hparams.lr)
         elif opt_name == 'lars':
-            try:
-                from torch.optim import lr_scheduler
-                from torch.optim.optimizer import Optimizer
-                from torch.optim import SGD
-            except Exception as e:
-                raise ImportError('LARS selected but dependencies not available')
-            # Lightweight LARS via torch.optim.SGD + manual LARS could be added; keep AdamW default for simplicity.
-            optimizer = torch.optim.SGD(params, lr=self.hparams.lr, momentum=0.9, weight_decay=self.hparams.weight_decay, nesterov=False)
+            # Lightweight LARS fallback: use SGD with the same parameter groups (per-group weight decay)
+            optimizer = torch.optim.SGD(params_groups, lr=self.hparams.lr, momentum=0.9, nesterov=False)
         else:
             raise ValueError("optimizer must be 'adamw' or 'lars'")
 
