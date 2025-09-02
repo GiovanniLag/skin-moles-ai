@@ -14,8 +14,8 @@ from src.utils.configs import read_yaml
 def parse_args():
     ap = argparse.ArgumentParser()
     ap.add_argument('--data-dirs', nargs='+', required=True, help='One or more directories with images (e.g., data/isic2019/ISIC_2019_Training_Input)')
-    ap.add_argument('--img-size', type=int, default=448)
-    ap.add_argument('--batch-size', type=int, default=128)
+    ap.add_argument('--img-size', type=int, default=224)
+    ap.add_argument('--batch-size', type=int, default=256)
     ap.add_argument('--num-workers', type=int, default=8)
     ap.add_argument('--max-epochs', type=int, default=100)
     ap.add_argument('--precision', type=str, default='16-mixed')
