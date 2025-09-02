@@ -100,3 +100,7 @@ lightning_logs/
 
 # Data files
 data/
+# Allow this specific CSV even though `data/` and `*.csv` are ignored
+!/data/isic2019/
+!/data/isic2019/isic_2019_common.csv
+!/data/isic2024/isic_2024_common.csv
