@@ -5,3 +5,11 @@ kaggle # For downloading datasets from Kaggle
 h5py
 plotly
 nbformat
+albumentations 
+opencv-python
+tqdm
+ipywidgets
+
+# If on windows, please manually install pytorch from https://pytorch.org/get-started/locally/
+torch
+torchvision
