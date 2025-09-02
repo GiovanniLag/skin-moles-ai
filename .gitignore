@@ -74,8 +74,6 @@ Thumbs.db
 
 # Data files - consider using Git LFS for large files
 data/
-*.csv
-*.json
 *.xml
 *.zip
 *.gz
@@ -98,9 +96,5 @@ lightning_logs/
 # Streamlit
 .streamlit/
 
-# Data files
-data/
-# Allow this specific CSV even though `data/` and `*.csv` are ignored
-!/data/isic2019/
-!/data/isic2019/isic_2019_common.csv
-!/data/isic2024/isic_2024_common.csv
+# Let src/data/ be tracked
+!src/data/
