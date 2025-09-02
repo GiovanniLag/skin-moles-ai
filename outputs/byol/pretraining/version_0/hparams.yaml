@@ -1,0 +1,24 @@
+backbone_kwargs:
+  act: silu
+  aux_binary: false
+  layers:
+  - 2
+  - 2
+  - 2
+  - 2
+  num_classes: 0
+  se_ratio: 0.25
+  widths:
+  - 64
+  - 128
+  - 256
+  - 512
+base_momentum: 0.996
+lr: 0.0003
+max_epochs: 100
+optimizer: adamw
+pred_hidden_dim: 4096
+proj_hidden_dim: 4096
+proj_out_dim: 256
+use_sync_bn: false
+weight_decay: 0.0001
