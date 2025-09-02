@@ -126,12 +126,24 @@ class BasicBlockSE(nn.Module):
         return out
 
 class GeM(nn.Module):
-    """Generalized Mean Pooling (learnable p)."""
+    """Generalized Mean Pooling with a learnable, positive p.
+    
+    To avoid NaN/Inf values during training (especially with mixed precision),
+    we reparameterise p via softplus to keep it >0 and perform the pow/exp
+    operations in float32.
+    """
     def __init__(self, p: float = 3.0, eps: float = 1e-6, trainable: bool = True):
         super().__init__()
-        self.p = nn.Parameter(torch.ones(1) * p, requires_grad=trainable)
+        # use a raw parameter and apply softplus inside forward to guarantee positivity
+        self.raw_p = nn.Parameter(torch.ones(1) * p, requires_grad=trainable)
         self.eps = eps
-    def forward(self, x):
-        x = x.clamp(min=self.eps).pow(self.p)
-        x = F.adaptive_avg_pool2d(x, 1).pow(1.0 / self.p)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        dtype = x.dtype         # save the incoming dtype (could be float16 in mixed precision)
+        x = x.float()           # do calculations in float32 to improve stability
+        p = F.softplus(self.raw_p) + self.eps  # ensure p > eps
+        # clamp x to avoid zeros, then perform generalized mean pooling
+        x = x.clamp(min=self.eps).pow(p)
+        x = F.adaptive_avg_pool2d(x, 1).pow(1.0 / p)
+        x = x.to(dtype)         # cast back to original dtype
         return x.view(x.size(0), -1)
