@@ -47,7 +47,7 @@ class BYOLDataModule(pl.LightningDataModule):
             pin_memory=self.pin_memory,
             drop_last=self.drop_last,
             persistent_workers=self.num_workers > 0,
-            prefetch_factor=2 if self.num_workers > 0 else 0,
+            prefetch_factor=3 if self.num_workers > 0 else 0,
         )
 
     def val_dataloader(self):
@@ -61,5 +61,5 @@ class BYOLDataModule(pl.LightningDataModule):
             pin_memory=self.pin_memory,
             drop_last=False,
             persistent_workers=self.num_workers > 0,
-            prefetch_factor=2 if self.num_workers > 0 else 0,
+            prefetch_factor=3 if self.num_workers > 0 else 0,
         )
