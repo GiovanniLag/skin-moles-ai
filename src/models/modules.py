@@ -71,7 +71,7 @@ class SEBlock(nn.Module):
         self.act = nn.SiLU(inplace=True)
 
     def forward(self, x):
-        w = F.adaptive_avg_pool2d(x, 1)
+        w = F.adaptive_avg_pool2d(x, 1) # Global average pooling
         w = self.act(self.fc1(w))
         w = torch.sigmoid(self.fc2(w))
         return x * w
@@ -144,6 +144,6 @@ class GeM(nn.Module):
         p = F.softplus(self.raw_p) + self.eps  # ensure p > eps
         # clamp x to avoid zeros, then perform generalized mean pooling
         x = x.clamp(min=self.eps).pow(p)
-        x = F.adaptive_avg_pool2d(x, 1).pow(1.0 / p)
+        x = F.adaptive_avg_pool2d(x, 1).pow(1.0 / p) # Does global avg pooling
         x = x.to(dtype)         # cast back to original dtype
         return x.view(x.size(0), -1)

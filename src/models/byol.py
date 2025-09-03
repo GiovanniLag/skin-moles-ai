@@ -50,16 +50,34 @@ class DermNetBackbone(nn.Module):
 class BYOL(pl.LightningModule):
     """Bootstrap Your Own Latent (BYOL) LightningModule for DermResNetSE.
 
-    Args:
-        backbone_kwargs: kwargs for DermResNetSE (e.g., depths, widths, activation, etc.)
-        proj_hidden_dim: hidden dim of projector MLP
-        proj_out_dim: output dim of projector (and predictor input). Common: 256
-        pred_hidden_dim: hidden dim of predictor MLP
-        base_momentum: initial EMA momentum for target network (e.g., 0.996)
-        optimizer: 'adamw' (default) or 'lars'
-        lr: learning rate for AdamW, or base lr for LARS (scaled by batch size)
-        weight_decay: weight decay
-        max_epochs: needed for cosine momentum schedule
+    Parameters
+    ----------
+    backbone_kwargs : dict, optional
+        kwargs for DermResNetSE (e.g., depths, widths, activation, etc.). Default is None.
+    proj_hidden_dim : int, optional
+        Hidden dimension of the projector MLP. Default is 4096.
+    proj_out_dim : int, optional
+        Output dimension of the projector (and predictor input). Common: 256. Default is 256.
+    pred_hidden_dim : int, optional
+        Hidden dimension of the predictor MLP. Default is 4096.
+    base_momentum : float, optional
+        Initial EMA momentum for the target network (e.g., 0.996). Default is 0.996.
+    optimizer : {'adamw', 'lars'}, optional
+        Optimizer to use. Default is 'adamw'.
+    lr : float, optional
+        Learning rate for AdamW, or base LR for LARS (scaled by batch size). Default is 3e-4.
+    weight_decay : float, optional
+        Weight decay. Default is 1e-4.
+    max_epochs : int, optional
+        Number of epochs used for the cosine momentum schedule. Default is 100.
+    use_sync_bn : bool, optional
+        Whether to convert BatchNorm layers to SyncBatchNorm for multi-GPU training. Default is False.
+
+    Notes
+    -----
+    Implements BYOL with an online network (encoder + projector + predictor) and an EMA target network
+    (encoder + projector). The loss is the symmetric BYOL loss between predicted online projections
+    and target projections. The target network is updated with a cosine-annealed momentum schedule.
     """
 
     def __init__(

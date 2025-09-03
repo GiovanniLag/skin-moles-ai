@@ -18,13 +18,14 @@ def parse_args():
     ap.add_argument('--batch-size', type=int, default=256)
     ap.add_argument('--num-workers', type=int, default=8)
     ap.add_argument('--max-epochs', type=int, default=100)
-    ap.add_argument('--precision', type=str, default='16-mixed')
+    ap.add_argument('--precision', type=str, default='32-true')
     ap.add_argument('--lr', type=float, default=3e-4)
     ap.add_argument('--weight-decay', type=float, default=1e-4)
     ap.add_argument('--base-momentum', type=float, default=0.996)
     ap.add_argument('--optimizer', type=str, default='adamw', choices=['adamw', 'lars'])
     ap.add_argument('--devices', type=int, default=1)
     ap.add_argument('--accumulate-grad-batches', type=int, default=1)
+    ap.add_argument('--gradient-clip-val', type=float, default=1.0)
     ap.add_argument('--log-dir', type=str, default='outputs/byol')
     ap.add_argument('--model-cfg', type=str, default=None, help='Path to model config YAML. It refers to the DermResNetSE kwargs.')
     ap.add_argument('--experiment-name', type=str, default='pretraining')
@@ -98,6 +99,7 @@ def main():
         accumulate_grad_batches=args.accumulate_grad_batches,
         strategy=strategy,
         default_root_dir=args.log_dir,
+        gradient_clip_val=args.gradient_clip_val
     )
 
     trainer.fit(model, datamodule=dm)
