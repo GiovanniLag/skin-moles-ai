@@ -8,7 +8,7 @@ import torch
 
 from src.models.byol import BYOL
 from src.data.byol_datamodule import BYOLDataModule
-from src.utils.configs import read_yaml
+from src.utils.configs import read_yaml, write_yaml
 
 
 def parse_args():
@@ -77,8 +77,32 @@ def main():
     os.makedirs(args.log_dir, exist_ok=True)
     logger = TensorBoardLogger(save_dir=args.log_dir, name=args.experiment_name)
 
+    run_dir = os.path.join(args.log_dir, args.experiment_name)
+    ckpts_dir = os.path.join(run_dir, 'ckpts')
+    os.makedirs(run_dir, exist_ok=True)
+    os.makedirs(ckpts_dir, exist_ok=True)
+
+    # Save CLI args for reproducibility
+    args_path = os.path.join(run_dir, 'args.yaml')
+    try:
+        args_dict = vars(args).copy()
+        # write args as YAML
+        write_yaml(args_path, args_dict)
+        print(f"Saved CLI args to {args_path}")
+    except Exception as e:
+        print(f"Warning: could not save CLI args to {args_path}: {e}")
+
+    # Also save the resolved model config (if any) used for this run
+    if model_cfg:
+        model_cfg_path = os.path.join(run_dir, 'model_cfg_used.yaml')
+        try:
+            write_yaml(model_cfg_path, model_cfg)
+            print(f"Saved model config to {model_cfg_path}")
+        except Exception as e:
+            print(f"Warning: could not save model config to {model_cfg_path}: {e}")
+
     ckpt_cb = ModelCheckpoint(
-        dirpath=os.path.join(args.log_dir, 'ckpts'),
+        dirpath=ckpts_dir,
         filename='byol-{epoch:03d}-{train_loss:.4f}',
         save_top_k=3,
         monitor='train/loss_epoch',
