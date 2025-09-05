@@ -34,6 +34,7 @@ def parse_args():
     ap.add_argument('--early_stop', type=int, default=8)
     ap.add_argument('--precision', type=str, default='32-true', choices=['16-mixed', '32-true']) 
     ap.add_argument('--gradient_clip_val', type=float, default=1.0, help='Set to 0 to disable gradient clipping')
+    ap.add_argument('--resume_version', type=int, default=None, help='If specified, will resume from the latest checkpoint in this version directory.') 
     return ap.parse_args()
 
 
@@ -68,15 +69,21 @@ def main():
 
     exp_dir = os.path.join(args.output_dir, args.experiment_name)
     os.makedirs(exp_dir, exist_ok=True) # ensure base experiment directory exists
-    versions = []
-    for name in os.listdir(exp_dir):
-        m = re.match(r'^version_(\d+)$', name)
-        if m and os.path.isdir(os.path.join(exp_dir, name)):
-            versions.append(int(m.group(1)))
-    print(f"Found versions: {versions}")
-    run_version = max(versions) + 1 if versions else 0  # Note: If versions is empty, start at 0 (logger's default).
-    print(f"Starting new run at version: {run_version}")
-
+    if not args.resume_version:
+        # Find the next available version number
+        versions = []
+        for name in os.listdir(exp_dir):
+            m = re.match(r'^version_(\d+)$', name)
+            if m and os.path.isdir(os.path.join(exp_dir, name)):
+                versions.append(int(m.group(1)))
+        run_version = max(versions) + 1 if versions else 0  # Note: If versions is empty, start at 0 (logger's default).
+    else:
+        run_version = args.resume_version
+        # Check that the specified version directory exists
+        version_dir = os.path.join(exp_dir, f'version_{run_version}')
+        if not os.path.isdir(version_dir):
+            raise ValueError(f"Specified resume_version {run_version} does not exist in {exp_dir}.")
+        
     # Create logger with explicit version
     logger = TensorBoardLogger(save_dir=args.output_dir, name=args.experiment_name, version=run_version)
     
@@ -103,7 +110,7 @@ def main():
         save_top_k=1,
         save_last=True,
     )
-    early_cb = EarlyStopping(monitor='val/auroc', mode='max', patience=args.early_stop)
+    early_cb = EarlyStopping(monitor='val/acc1', mode='max', patience=args.early_stop)
     lr_cb = LearningRateMonitor(logging_interval='epoch')
     progress_cb = RichProgressBar()
 
@@ -128,8 +135,28 @@ def main():
     # Ensure checkpoint directory exists
     os.makedirs(ckpt_dir, exist_ok=True)
 
+    # Find checkpoint to resume from if resuming a version
+    resume_ckpt_path = None
+    if args.resume_version:
+        # Look for last.ckpt first (most recent state), then best.ckpt as fallback
+        potential_ckpts = [
+            os.path.join(ckpt_dir, 'last.ckpt'),
+            os.path.join(ckpt_dir, 'best.ckpt')
+        ]
+        for ckpt_path in potential_ckpts:
+            if os.path.isfile(ckpt_path):
+                resume_ckpt_path = ckpt_path
+                print(f"Resuming training from checkpoint: {ckpt_path}")
+                break
+        
+        if resume_ckpt_path is None:
+            print(f"Warning: No checkpoint found in {ckpt_dir}. Starting fresh training in version {run_version}.")
+
     # Train - validate - test (validation and test are done on best checkpoint)
-    trainer.fit(model, datamodule=dm)
+    if resume_ckpt_path is None:
+        trainer.fit(model, datamodule=dm)
+    else:
+        trainer.fit(model, datamodule=dm, ckpt_path=resume_ckpt_path)
     val_metrics = trainer.validate(model, datamodule=dm, ckpt_path='best')
     test_metrics = trainer.test(model, datamodule=dm, ckpt_path='best')
 
