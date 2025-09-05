@@ -1,6 +1,7 @@
 import os
 import cv2
 import torch
+import numpy as np
 import pandas as pd
 from torch.utils.data import Dataset
 from glob import glob
@@ -26,9 +27,10 @@ class ISICDataset(Dataset):
     The 'meta' dictionary contains all columns from the CSV file except 'image' and 'label'.
     Moreover, if 'return_image_id' is set to True, the 'meta' dictionary will also include the image ID.
 
+    NOTE: image extensions are assumed to be .jpg.
     """
     def __init__(self, 
-                 csv_path: str, 
+                 csv: str, 
                  root_dir: str, 
                  transform: Optional[callable] = None, 
                  return_image_id: bool = False, 
@@ -36,7 +38,7 @@ class ISICDataset(Dataset):
         """
         Parameters:
         ----------
-        csv_path : str or list[str]
+        csv : str or pd.DataFrame or list[str] or list[pd.DataFrame]
             Path to the CSV file containing image names and labels.
             The CSV should contain at least 'image' and 'label' columns. Other metadata columns are optional.
             You can provide a single CSV file or a list of CSV files. In this latter case, the datasets will be concatenated
@@ -53,15 +55,21 @@ class ISICDataset(Dataset):
             Optional mapping from string labels to numerical indices.
             If not provided, the mapping will be created from the dataset.
         """
-        if isinstance(csv_path, list):
+        if isinstance(csv, list):
             dfs = []
-            for i, path in enumerate(csv_path):
-                df = pd.read_csv(path)
+            for i, path in enumerate(csv):
+                if isinstance(path, pd.DataFrame):
+                    df = path.copy()
+                else:
+                    df = pd.read_csv(path)
                 df['dataset_idx'] = i
                 dfs.append(df)
             self.data_frame = pd.concat(dfs, ignore_index=True)
+        elif isinstance(csv, pd.DataFrame):
+            self.data_frame = csv.copy()
+            self.data_frame['dataset_idx'] = 0
         else:
-            self.data_frame = pd.read_csv(csv_path)
+            self.data_frame = pd.read_csv(csv)
             self.data_frame['dataset_idx'] = 0
         self.root_dirs = root_dir if isinstance(root_dir, list) else [root_dir]
         self.transform = transform
@@ -107,6 +115,48 @@ class ISICDataset(Dataset):
             sample['image'] = self.transform(image=sample['image'])['image']
 
         return sample
+
+
+def collate_with_meta(batch: list) -> dict:
+    """Custom collate function that stacks images and labels but keeps metadata
+    as a list of dicts to avoid PyTorch trying to convert string fields into
+    numeric tensors.
+
+    Expected input: list of samples where each sample is a dict with keys
+    'image', 'labels', and 'meta'. Returns a dict with 'image' (B,C,H,W),
+    'labels' (B,), and 'meta' (list of dicts).
+    """
+    images = []
+    labels = []
+    metas = []
+
+    for item in batch:
+        img = item['image']
+
+        # Convert numpy arrays (H,W,C) -> torch tensors (C,H,W)
+        if isinstance(img, np.ndarray):
+            img_t = torch.from_numpy(img)
+            if img_t.ndim == 3:
+                # HWC -> CHW
+                img_t = img_t.permute(2, 0, 1)
+        elif isinstance(img, torch.Tensor):
+            img_t = img
+        else:
+            # Fallback: try to create tensor
+            img_t = torch.tensor(img)
+
+        images.append(img_t.float())
+
+        # Labels should be integers
+        labels.append(int(item['labels']))
+
+        metas.append(item.get('meta', {}))
+
+    # Stack images (assumes transforms produce consistent shapes)
+    images = torch.stack(images, dim=0)
+    labels = torch.tensor(labels, dtype=torch.long)
+
+    return {'image': images, 'labels': labels, 'meta': metas}
 
 
 class UnlabeledImagePathsTwoViews(Dataset):

@@ -11,12 +11,12 @@ class DermResNetSE(nn.Module):
 
     Parameters
     ----------
+    num_classes : int
+        number of output classes, e.g. 8 for ISIC 2019
     layers : list[int] 
         number of blocks per stage (e.g. [2,2,2,2])
     widths : list[int] 
         number of channels per stage (e.g. [64,128,256,512])
-    num_classes : int
-        number of output classes, e.g. 8 for ISIC 2019
     act : str
         activation function, one of {'silu', 'relu', 'gelu'}
     se_ratio : float
@@ -25,9 +25,9 @@ class DermResNetSE(nn.Module):
         add a melanoma-vs-rest auxiliary head
     """
     def __init__(self,
+                 num_classes,
                  layers=(2,2,2,2),
                  widths=(64,128,256,512),
-                 num_classes=8,
                  act='silu',
                  se_ratio=0.25,
                  aux_binary=False):
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     model = DermResNetSE(layers=[2,2,2,2], widths=[64,128,256,512], num_classes=8, aux_binary=True)
     print(model)
 
-    dataset = ISICDataset(csv_path='data/isic2019/isic_2019_common.csv',
+    dataset = ISICDataset(csv='data/isic2019/isic_2019_common.csv',
                           root_dir='data/isic2019/ISIC_2019_Training_Input/ISIC_2019_Training_Input',
                           transform=get_val_transforms(img_size=384),
                           labels_map={

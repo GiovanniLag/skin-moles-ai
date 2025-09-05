@@ -53,7 +53,7 @@ def main():
     else:
         model_cfg = {}
 
-    # drop nunm_classes if present in cfg
+    # drop num_classes if present in cfg
     if 'num_classes' in model_cfg:
         model_cfg.pop('num_classes')
 
@@ -137,4 +137,4 @@ def main():
 if __name__ == '__main__':
     main()
     # Example usage:
-    # python -m scripts.pretrain_byol --data-dirs data/isic2019/ISIC_2019_Training_Input data/isic2024/train-image/image --img-size 448 --batch-size 128 --max-epochs 100 --log-dir outputs/byol --model-cfg cfgs/dermanet_default.yaml
+    # python -m scripts.pretrain_byol --data-dirs data/isic2019/ISIC_2019_Training_Input/ISIC_2019_Training_Input data/isic2024/train-image/image --img-size 448 --batch-size 128 --max-epochs 100 --log-dir outputs/byol --model-cfg cfgs/dermanet_default.yaml
