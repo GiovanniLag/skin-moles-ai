@@ -100,3 +100,5 @@ lightning_logs/
 !src/data/
 
 !data/isic2019/isic_2019_common.csv
+
+outputs/byol

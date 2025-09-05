@@ -1,0 +1,15 @@
+batch_size: 256
+csv: data/isic2019/isic_2019_common.csv
+devices: 1
+early_stop: 8
+epochs: 80
+experiment_name: training
+gradient_clip_val: 1.0
+img_dir: data/isic2019/ISIC_2019_Training_Input/ISIC_2019_Training_Input
+img_size: 224
+model_cfg: cfgs/dermanet_default.yaml
+num_workers: 8
+output_dir: outputs/dermanet
+precision: 32-true
+resume_version: 0
+seed: 42

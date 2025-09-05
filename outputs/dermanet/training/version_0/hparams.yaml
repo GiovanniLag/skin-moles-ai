@@ -1,0 +1,44 @@
+class_weights: !!python/object/apply:torch._utils._rebuild_tensor_v2
+- !!python/object/apply:torch.storage._load_from_bytes
+  - !!binary |
+    gAKKCmz8nEb5IGqoUBkugAJN6QMugAJ9cQAoWBAAAABwcm90b2NvbF92ZXJzaW9ucQFN6QNYDQAA
+    AGxpdHRsZV9lbmRpYW5xAohYCgAAAHR5cGVfc2l6ZXNxA31xBChYBQAAAHNob3J0cQVLAlgDAAAA
+    aW50cQZLBFgEAAAAbG9uZ3EHSwR1dS6AAihYBwAAAHN0b3JhZ2VxAGN0b3JjaApGbG9hdFN0b3Jh
+    Z2UKcQFYCQAAADc4NTM4NDM2OHECWAMAAABjcHVxA0sITnRxBFEugAJdcQBYCQAAADc4NTM4NDM2
+    OHEBYS4IAAAAAAAAAJ7naUDS73M/YHOaP+QqVEGaQjM/s8x7PkBzoUAmnUhB
+- 0
+- !!python/tuple
+  - 8
+- !!python/tuple
+  - 1
+- false
+- !!python/object/apply:collections.OrderedDict
+  - []
+confusion_matrix_dir: outputs/dermanet/training/version_0/conf_matrix
+epochs: 80
+lr: 0.0003
+model_cfg:
+  act: silu
+  aux_binary: false
+  layers:
+  - 2
+  - 2
+  - 2
+  - 2
+  se_ratio: 0.25
+  widths:
+  - 64
+  - 128
+  - 256
+  - 512
+num_classes: 8
+num_to_label:
+  0: AK
+  1: BCC
+  2: BKL
+  3: DF
+  4: MEL
+  5: NV
+  6: SCC
+  7: VASC
+weight_decay: 0.0001
