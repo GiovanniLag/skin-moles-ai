@@ -69,7 +69,7 @@ def main():
 
     exp_dir = os.path.join(args.output_dir, args.experiment_name)
     os.makedirs(exp_dir, exist_ok=True) # ensure base experiment directory exists
-    if not args.resume_version:
+    if args.resume_version is None:
         # Find the next available version number
         versions = []
         for name in os.listdir(exp_dir):
@@ -83,6 +83,8 @@ def main():
         version_dir = os.path.join(exp_dir, f'version_{run_version}')
         if not os.path.isdir(version_dir):
             raise ValueError(f"Specified resume_version {run_version} does not exist in {exp_dir}.")
+        
+    print(f"Experiment directory: {exp_dir}, using version: {run_version}")
         
     # Create logger with explicit version
     logger = TensorBoardLogger(save_dir=args.output_dir, name=args.experiment_name, version=run_version)
@@ -137,7 +139,7 @@ def main():
 
     # Find checkpoint to resume from if resuming a version
     resume_ckpt_path = None
-    if args.resume_version:
+    if args.resume_version is not None:
         # Look for last.ckpt first (most recent state), then best.ckpt as fallback
         potential_ckpts = [
             os.path.join(ckpt_dir, 'last.ckpt'),
