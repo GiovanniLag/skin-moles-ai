@@ -98,3 +98,5 @@ lightning_logs/
 
 # Let src/data/ be tracked
 !src/data/
+
+!data/isic2019/isic_2019_common.csv
