@@ -1,0 +1,58 @@
+/* Theme colors */
+:root {
+    --primary-color: #36b7d2;
+    --background-color: #ffffff;
+    --secondary-background-color: #FBF0D8;
+    --text-color: #264653;
+    --accent-color: #e76f51;
+    --accent2-color: #f6bb37;
+    --button-color: var(--primary-color);
+    --button-hover-color: #264653;
+    --button-text-color: #ffffff;
+}
+
+/* Make the sidebar a flex column */
+[data-testid="stSidebarContent"],
+[data-testid="stSidebarUserContent"] {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Container for separator + weights */
+#weights-sel-container {
+    margin-top: auto; /* pushes it to the bottom */
+    padding: 12px;
+    background: transparent;
+    box-sizing: border-box;
+}
+
+/* Separator style */
+#weights-sel-container hr {
+    border: none;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    margin: 8px 0;
+}
+
+/* Weights selection button */
+.st-key-select-weights {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.st-key-select-weights button {
+    background-color: var(--button-color);
+    border: none;
+    color: var(--button-text-color);
+    text-align: center;
+    cursor: pointer;
+    display: inline-block;
+    margin: 4px 2px;
+    padding: 8px 16px;
+    border-radius: 6px;
+}
+
+.st-key-select-weights button:hover {
+    background-color: var(--button-hover-color);
+}

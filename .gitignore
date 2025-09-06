@@ -102,3 +102,6 @@ lightning_logs/
 !data/isic2019/isic_2019_common.csv
 
 outputs/byol
+
+# Streamlit
+streamlit/uploads/

@@ -13,6 +13,8 @@ lightning
 tensorboard
 rich
 streamlit
+streamlit-option-menu
+tkinter
 
 # If on windows, please manually install pytorch from https://pytorch.org/get-started/locally/
 torch

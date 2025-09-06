@@ -86,3 +86,12 @@ class TwoAugmentTransform:
         v1 = self.t1(image=image)['image']
         v2 = self.t2(image=image)['image']
         return v1, v2
+    
+
+class InferenceTransform:
+    """Transform for inference: single view with validation transforms."""
+    def __init__(self, img_size: int):
+        self.transform = get_val_transforms(img_size)
+
+    def __call__(self, image):
+        return self.transform(image=image)['image']
