@@ -12,6 +12,7 @@ ipywidgets
 lightning
 tensorboard
 rich
+streamlit
 
 # If on windows, please manually install pytorch from https://pytorch.org/get-started/locally/
 torch
