@@ -94,7 +94,7 @@ lightning_logs/
 .ipynb_checkpoints
 
 # Streamlit
-.streamlit/
+.streamlit/secrets.toml
 
 # Let src/data/ be tracked
 !src/data/
