@@ -96,16 +96,16 @@ def render() -> None:
                             gc_res = generate_gradcam(images[selected_image_name], model_path=model_path, target_class=target_class, alpha=gradcam_alpha)
                             tab_orig, tab_overlay, tab_heat = st.tabs(["Original", "Overlay", "Heatmap"])
                             with tab_orig:
-                                st.image(orig_img, caption=selected_image_name, use_container_width=True)
+                                st.image(orig_img, caption=selected_image_name, width='stretch')
                             with tab_overlay:
-                                st.image(gc_res.overlay, caption=f"Overlay (class {gc_res.target_class}, score {gc_res.target_score:.3f})", use_container_width=True)
+                                st.image(gc_res.overlay, caption=f"Overlay (class {gc_res.target_class}, score {gc_res.target_score:.3f})", width='stretch')
                             with tab_heat:
-                                st.image(gc_res.heatmap, caption="Grad-CAM heatmap", use_container_width=True)
+                                st.image(gc_res.heatmap, caption="Grad-CAM heatmap", width='stretch')
                         except Exception as cam_e:
                             st.warning(f"Grad-CAM failed: {cam_e}")
-                            st.image(orig_img, caption=selected_image_name, use_container_width=True)
+                            st.image(orig_img, caption=selected_image_name, width='stretch')
                 else:
-                    st.image(orig_img, caption=selected_image_name, use_container_width=True)
+                    st.image(orig_img, caption=selected_image_name, width='stretch')
                 _LAST_CLICKED = f"image-{selected_image_name}"
             else:
                 st.info("Click an image in the gallery below to see it here.")
