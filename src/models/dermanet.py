@@ -54,6 +54,7 @@ class DermResNetSE(nn.Module):
             nn.Linear(self.out_ch, num_classes)
         )
         self.aux_binary = aux_binary
+        # Auxiliary binary head for begnign-vs-malignant classification
         if aux_binary:
             self.bin_head = nn.Sequential(
                 nn.LayerNorm(self.out_ch),

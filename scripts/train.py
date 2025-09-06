@@ -16,6 +16,7 @@ import torch
 from src.data.isic_datamodule import ISICDataModule
 from src.models.dermanet_module import DermaNetLightning
 from src.utils.configs import read_yaml, write_yaml
+from src.models.dermanet import DermResNetSE
 
 
 def parse_args():
@@ -35,6 +36,7 @@ def parse_args():
     ap.add_argument('--precision', type=str, default='32-true', choices=['16-mixed', '32-true']) 
     ap.add_argument('--gradient_clip_val', type=float, default=1.0, help='Set to 0 to disable gradient clipping')
     ap.add_argument('--resume_version', type=int, default=None, help='If specified, will resume from the latest checkpoint in this version directory.') 
+    ap.add_argument('--pretrain_ckpt', type=str, default=None, help='Path to a pretrained checkpoint to initialize the model. If specified, training will start from this checkpoint.')
     return ap.parse_args()
 
 
@@ -102,6 +104,91 @@ def main():
         confusion_matrix_dir=os.path.join(run_dir, 'conf_matrix'),
         num_to_label=dm.num_to_label,
     )
+
+    # If a pretrained BYOL checkpoint is provided, try to load its encoder/backbone weights
+    def load_byol_backbone(pretrain_path: str, target_model: DermResNetSE):
+        """Load a BYOL-pretrained backbone into the target DermResNetSE instance.
+
+        Supports two common formats:
+        - A state_dict saved via `torch.save(model.encoder.state_dict(), path)` (usually .pt)
+        - A Lightning checkpoint (.ckpt) containing a nested 'state_dict' with keys like 'encoder.backbone...'
+
+        The loader will attempt to match relevant keys (backbone and encoder) and will load partially
+        when shapes or keys mismatch, reporting missing and unexpected keys.
+        """
+        import torch as _torch
+
+        if not pretrain_path or not os.path.isfile(pretrain_path):
+            print(f"Pretrain checkpoint path does not exist: {pretrain_path}")
+            return
+
+        print(f"Loading pretrained BYOL checkpoint from: {pretrain_path}")
+
+        # Load the file (allow map_location to cpu for safety)
+        ckpt = _torch.load(pretrain_path, map_location='cpu')
+
+        # Determine if this is a raw state_dict or a Lightning checkpoint
+        if isinstance(ckpt, dict) and 'state_dict' in ckpt:
+            sd = ckpt['state_dict']
+        elif isinstance(ckpt, dict) and any(k.startswith('encoder') or k.startswith('target_encoder') for k in ckpt.keys()):
+            sd = ckpt
+        else:
+            # assume it's a raw state_dict
+            sd = ckpt
+
+        # Normalize keys: remove leading 'module.' if present (DataParallel) and optional 'encoder.' or 'encoder.backbone.' prefixes
+        new_sd = {}
+        for k, v in sd.items():
+            new_k = k
+            if new_k.startswith('module.'):
+                new_k = new_k[len('module.'):]
+            # Many BYOL checkpoints store encoder as 'encoder.backbone.<...>' or 'encoder.<...>' depending on how it was saved
+            if new_k.startswith('encoder.backbone.'):
+                new_k = new_k[len('encoder.backbone.'):]
+            elif new_k.startswith('encoder.'):
+                # try to strip just 'encoder.' too
+                new_k = new_k[len('encoder.'):]
+            # handle raw encoder.state_dict() where keys start with 'backbone.'
+            if new_k.startswith('backbone.'):
+                new_k = new_k[len('backbone.'):]
+            # also handle 'target_encoder' variants
+            if new_k.startswith('target_encoder.backbone.'):
+                new_k = new_k[len('target_encoder.backbone.'):]
+            elif new_k.startswith('target_encoder.'):
+                new_k = new_k[len('target_encoder.'):]
+            new_sd[new_k] = v
+
+        # Now try to load into the target model's backbone (which lives under target_model.backbone)
+        # We will attempt to find matching keys for either the whole model or the backbone only.
+        target_sd = target_model.state_dict()
+
+        # Build a filtered dict of keys that appear in both
+        filtered = {k: v for k, v in new_sd.items() if k in target_sd and v.shape == target_sd[k].shape}
+
+        missing_keys = [k for k in target_sd.keys() if k not in filtered]
+        unexpected_keys = [k for k in new_sd.keys() if k not in filtered]
+
+        # Load matched params
+        if filtered:
+            target_sd.update(filtered)
+            target_model.load_state_dict(target_sd)
+            print(f"Loaded {len(filtered)} param tensors into target backbone.")
+        else:
+            print("No matching parameter shapes/keys found to load into the target backbone. Skipping load.")
+
+        if missing_keys:
+            print(f"Warning: {len(missing_keys)} parameters in the target model were not found in the pretrained checkpoint (they will keep their initialized values).")
+        if unexpected_keys:
+            print(f"Note: {len(unexpected_keys)} parameters were present in the pretrained checkpoint but not used: (showing up to 20)\n" + str(unexpected_keys[:20]))
+
+    # If user provided a pretraining checkpoint, attempt to load it into the underlying backbone
+    if args.pretrain_ckpt is not None:
+        try:
+            # target: the DermResNetSE instance inside the lightning wrapper
+            target_backbone = model.model
+            load_byol_backbone(args.pretrain_ckpt, target_backbone)
+        except Exception as e:
+            print(f"Warning: failed to load pretrained checkpoint '{args.pretrain_ckpt}': {e}")
 
     # Callbacks
     ckpt_cb = ModelCheckpoint(
