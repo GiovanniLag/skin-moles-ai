@@ -1,16 +1,13 @@
-from io import BytesIO
 from typing import BinaryIO
 from PIL import Image
 import torch
 
 
-def load_image(uploaded_file: BinaryIO) -> Image.Image:
-    """Load an uploaded file into a PIL image."""
-    if hasattr(uploaded_file, "getvalue"):
-        data = uploaded_file.getvalue()
-    else:
-        data = uploaded_file.read()
-    return Image.open(BytesIO(data)).convert("RGB")
+def load_image(source: BinaryIO | Image.Image) -> Image.Image:
+    """Load an image from a file-like object or return it if it's already a PIL Image."""
+    if isinstance(source, Image.Image):
+        return source.convert("RGB")
+    return Image.open(source).convert("RGB")
 
 
 def denormalize_tensor(imgs, mean=None, std=None):

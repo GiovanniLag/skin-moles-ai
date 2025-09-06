@@ -75,7 +75,7 @@ def _init_sidebar() -> None:
             # installations allow calling askopenfilename directly after import.
             file_path = filedialog.askopenfilename(title="Select model weights", filetypes=[("Checkpoint files", "*.ckpt *.pt"), ("All files", "*.*")])
             if file_path:
-                name = f"User selected: {Path(file_path).name}"
+                name = f"{Path(file_path).name}"
                 _REGISTRY[name] = {"ckpt": file_path, "img_size": 224}
                 set_active_weights(name)
                 st.session_state["weights"] = name

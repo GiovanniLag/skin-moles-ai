@@ -31,11 +31,12 @@ def load_model(model_path: str) -> DermaNetLightning:
 
 
 @st.cache_data
-def preprocess_image(image: Image.Image, img_size: int) -> torch.Tensor:
+def _preprocess_image(image: np.ndarray, img_size: int) -> torch.Tensor:
     """Preprocess a PIL image for model input."""
     transform = InferenceTransform(img_size)
     tensor = transform(image).unsqueeze(0)
     return tensor
+
 
 def predict(image: torch.Tensor, model_path: str) -> Dict[str, float]:
     """Run inference on a PIL image and return class probabilities."""
@@ -47,36 +48,43 @@ def predict(image: torch.Tensor, model_path: str) -> Dict[str, float]:
     return {labels[i]: float(probs[i]) for i in range(len(probs))}
 
 
-def infer_images(images, model_path: str) -> Dict[str, Dict[str, float]]:
+def infer_images(
+    images: list, model_path: str, filenames: list[str]
+) -> tuple[Dict[str, Dict[str, float]], Dict[str, Image.Image]]:
     """Run inference on one or multiple images and return a mapping from filename to class probabilities.
 
     Parameters
     ----------
-    images : UploadedFile or list of UploadedFile
-        One or more images uploaded via Streamlit's file uploader.
+    images : list
+        A list of images to process. Can be file-like objects or PIL Images.
+    model_path : str
+        Path to the model checkpoint.
+    filenames : list[str]
+        A list of filenames corresponding to the images.
 
     Returns
     -------
-    dict
-        Mapping filename -> {label: probability}
+    tuple
+        - A dictionary mapping filename to {label: probability}.
+        - A dictionary mapping filename to the processed PIL Image.
     """
     results: Dict[str, Dict[str, float]] = {}
-    # Process each uploaded file and run prediction. We return only the
-    # `results` mapping because callers expect a mapping that can be passed
-    # directly to `dict.update()` (see `home_page.on_file_upload`).
-    files = images if isinstance(images, list) else [images]
-    processed_images: Dict[str, np.ndarray] = {}
-    for file in files:
-        image = load_image(file)
-        image = np.array(image)
-        tensor = preprocess_image(image, img_size=224).to(DEVICE)
-        results[file.name] = predict(tensor, model_path)
-        # denormalize_tensor returns an array with shape [B, H, W, C]
+    processed_images: Dict[str, Image.Image] = {}
+
+    for i, file_or_img in enumerate(images):
+        filename = filenames[i]
+        image = load_image(file_or_img)  # Handles both file-like and PIL
+        
+        # Preprocess and predict
+        tensor = _preprocess_image(np.array(image), img_size=224).to(DEVICE)
+        results[filename] = predict(tensor, model_path)
+        
+        # Denormalize for display
         denorm = denormalize_tensor(tensor)
-        # If batch dim is present, take first image
         if denorm.ndim == 4 and denorm.shape[0] == 1:
             denorm = denorm[0]
-        # Convert float [0,1] -> uint8 [0,255] and to PIL Image for Streamlit
-        denorm_img = (denorm * 255.0).round().astype(np.uint8)
-        processed_images[file.name] = Image.fromarray(denorm_img)
+            
+        denorm_img_arr = (denorm * 255.0).round().astype(np.uint8)
+        processed_images[filename] = Image.fromarray(denorm_img_arr)
+        
     return results, processed_images

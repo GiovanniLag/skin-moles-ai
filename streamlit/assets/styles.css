@@ -56,3 +56,50 @@
 .st-key-select-weights button:hover {
     background-color: var(--button-hover-color);
 }
+
+
+/* HOME PAGE STYLES */
+/* Full-width gallery grid */
+.dna-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    width: 100%;
+    margin-top: .5rem;
+}
+/* Image card */
+.dna-card {
+    position: relative;
+    background: var(--background-color, #fff);
+    border-radius: 16px;
+    box-shadow: 0 4px 18px rgba(0,0,0,.08);
+    overflow: hidden;
+    transition: transform .08s ease-in-out;
+}
+.dna-card:hover { transform: translateY(-2px); }
+.dna-card img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.dna-caption {
+    font-size: 0.85rem;
+    padding: 8px 10px 10px;
+    color: var(--text-color, #333);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* Traffic-light dot (top-left) */
+.dna-dot {
+    position: absolute;
+    top: 10px; left: 10px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.95);
+    box-shadow: 0 0 0 2px rgba(0,0,0,.08);
+}
+/* Simple legend styling */
+.dna-legend { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.dna-legend-item { display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+.dna-legend-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
