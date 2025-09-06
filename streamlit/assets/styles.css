@@ -59,6 +59,78 @@
 
 
 /* HOME PAGE STYLES */
+
+/* Prediction bars styling */
+.prediction-container {
+    background: var(--secondary-background-color);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(54, 183, 210, 0.1);
+}
+
+.prediction-bar-wrapper {
+    margin-bottom: 12px;
+}
+
+.prediction-bar-wrapper:last-child {
+    margin-bottom: 0;
+}
+
+.prediction-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-color);
+}
+
+.prediction-percentage {
+    font-size: 0.95em;
+    font-weight: 700;
+}
+
+.prediction-bar-bg {
+    background: rgba(0,0,0,0.1);
+    border-radius: 8px;
+    height: 8px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.prediction-bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.3s ease-in-out;
+    background: linear-gradient(90deg, var(--fill-color) 0%, var(--fill-color-end, var(--fill-color)) 100%);
+}
+
+/* Benign/Malignant specific colors */
+.benign-bar {
+    --fill-color: #2ecc71;
+    --fill-color-end: #27ae60;
+}
+
+.malignant-bar {
+    --fill-color: #e74c3c;
+    --fill-color-end: #c0392b;
+}
+
+/* Enhanced expander styling */
+.streamlit-expanderHeader {
+    background: rgba(54, 183, 210, 0.05) !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    border: 1px solid rgba(54, 183, 210, 0.2) !important;
+}
+
+.streamlit-expanderContent {
+    background: rgba(54, 183, 210, 0.02) !important;
+    border-radius: 0 0 8px 8px !important;
+    padding: 12px !important;
+}
+
 /* Full-width gallery grid */
 .dna-gallery {
     display: grid;
