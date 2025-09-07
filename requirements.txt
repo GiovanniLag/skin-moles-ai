@@ -1,22 +1,29 @@
+# Core
 numpy
 pandas
 matplotlib
-kaggle # For downloading datasets from Kaggle
-h5py
 plotly
 nbformat
-albumentations 
-opencv-python
 tqdm
-ipywidgets
+rich
+
+# ML / Vision
+albumentations
+opencv-python-headless    # safer cross-platform than opencv-python (no Qt GUI deps)
+
+# DL training utilities
 lightning
 tensorboard
-rich
+
+# App
 streamlit
 streamlit-option-menu
 st-click-detector
-tkinter
 
-# If on windows, please manually install pytorch from https://pytorch.org/get-started/locally/
-torch
-torchvision
+# Jupyter interactivity (optional, harmless if not used)
+ipywidgets
+
+# Data
+kaggle
+
+# Please install torch and torchvision separately according to your system and CUDA version
