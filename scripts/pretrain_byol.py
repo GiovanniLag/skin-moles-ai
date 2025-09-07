@@ -9,6 +9,7 @@ import torch
 from src.models.byol import BYOL
 from src.data.byol_datamodule import BYOLDataModule
 from src.utils.configs import read_yaml, write_yaml
+from src.utils.gradweightmonitor import GradWeightMonitor
 
 
 def parse_args():
@@ -101,15 +102,28 @@ def main():
         except Exception as e:
             print(f"Warning: could not save model config to {model_cfg_path}: {e}")
 
+    # Callbacks
     ckpt_cb = ModelCheckpoint(
         dirpath=ckpts_dir,
-        filename='byol-{epoch:03d}-{train_loss:.4f}',
+        filename='byol-{epoch:03d}',
         save_top_k=3,
         monitor='train/loss_epoch',
         mode='min',
         save_last=True,
     )
+
     lr_cb = LearningRateMonitor(logging_interval='epoch')
+
+    grad_cb = GradWeightMonitor(
+        log_hist_every_n_steps=200,    # 0 to disable histograms
+        grad_norm_p=2.0,
+        param_groups=None,             # or e.g. ["backbone.", "projector.", "predictor."]
+        dump_dir=os.path.join(run_dir, 'gradweight_dumps'),
+        max_items_per_tensor=8,
+        save_states=True,
+        stop_on_nonfinite=True,
+    )
+
 
     strategy = 'ddp' if args.devices and args.devices > 1 else 'auto'
 
@@ -119,7 +133,7 @@ def main():
         devices=args.devices,
         precision=args.precision,
         logger=logger,
-        callbacks=[ckpt_cb, lr_cb],
+        callbacks=[ckpt_cb, lr_cb, grad_cb],
         accumulate_grad_batches=args.accumulate_grad_batches,
         strategy=strategy,
         default_root_dir=args.log_dir,
