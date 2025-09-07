@@ -3,14 +3,14 @@ import json
 import os
 import re
 
-import pytorch_lightning as pl
-from pytorch_lightning.callbacks import (
+import lightning.pytorch as pl
+from lightning.pytorch.callbacks import (
     ModelCheckpoint,
     EarlyStopping,
     LearningRateMonitor,
     RichProgressBar,
 )
-from pytorch_lightning.loggers import TensorBoardLogger
+from lightning.pytorch.loggers import TensorBoardLogger
 import torch
 
 from src.data.isic_datamodule import ISICDataModule

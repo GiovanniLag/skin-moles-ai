@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List, Optional
 
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 from torch.utils.data import DataLoader, random_split
 
 from .augmentations import TwoAugmentTransform

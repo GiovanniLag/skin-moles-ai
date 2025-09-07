@@ -6,7 +6,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 from torchmetrics.classification import (
     MulticlassAUROC,
     MulticlassF1Score,
