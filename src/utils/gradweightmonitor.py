@@ -8,9 +8,6 @@ from lightning.pytorch.callbacks import Callback
 
 Batch = Any  # can be a Tensor, tuple/list/dict of Tensors, etc.
 
-def _is_finite_tensor(t: torch.Tensor) -> bool:
-    return torch.isfinite(t).all().item()
-
 def _cpu_detach(x: torch.Tensor) -> torch.Tensor:
     return x.detach().cpu()
 

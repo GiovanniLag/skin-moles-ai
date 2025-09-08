@@ -151,11 +151,6 @@ def main():
             # handle raw encoder.state_dict() where keys start with 'backbone.'
             if new_k.startswith('backbone.'):
                 new_k = new_k[len('backbone.'):]
-            # also handle 'target_encoder' variants
-            if new_k.startswith('target_encoder.backbone.'):
-                new_k = new_k[len('target_encoder.backbone.'):]
-            elif new_k.startswith('target_encoder.'):
-                new_k = new_k[len('target_encoder.'):]
             new_sd[new_k] = v
 
         # Now try to load into the target model's backbone (which lives under target_model.backbone)
