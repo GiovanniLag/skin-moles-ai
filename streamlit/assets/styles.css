@@ -175,3 +175,10 @@
 .dna-legend { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
 .dna-legend-item { display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
 .dna-legend-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+
+/* SPACING AND DIMENSIONS FIXES */
+
+div.st-emotion-cache-18kf3ut:nth-child(4) {
+    padding-top: 20px !important;
+}

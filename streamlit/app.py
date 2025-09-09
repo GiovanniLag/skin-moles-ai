@@ -8,18 +8,17 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(ROOT_DIR))
 STREAMLIT_DIR = Path(__file__).resolve().parent
 
-from src.ui import home_page, training_page, about_page # noqa: E402
+from src.ui import home_page, about_page # noqa: E402
 from src.services.weighs_registry import set_active_weights, _REGISTRY # noqa: E402
 from src.utils.theme import load_theme_config, transparency # noqa: E402
 from src.utils.streamlit import load_css # noqa: E402
 from src.components.popups import notify # noqa: E402
 
 load_css(str(STREAMLIT_DIR / "assets" / "styles.css")) # Load custom CSS for styling
-st.set_page_config(page_title="DermaNet", page_icon="🩺", layout="wide")
+st.set_page_config(page_title="DermaNet", page_icon="streamlit/assets/imgs/logo.png", layout="wide")
 
 PAGES = {
     "Home": home_page.render,
-    "Training": training_page.render,
     "About": about_page.render,
 }
 
@@ -35,7 +34,29 @@ def _init_sidebar() -> None:
     subsequent page reloads retain the choice. When the user selects a
     different weight the corresponding entry in the registry is updated.
     """
-    st.sidebar.title("DermaNet")
+    # Render branding using an HTML block in the sidebar. The image is
+    # embedded as a base64 data URI to keep the sidebar markup self-contained.
+    logo_path = STREAMLIT_DIR / "assets" / "imgs" / "logo.png"
+    try:
+        if logo_path.exists():
+            import base64
+
+            img_bytes = logo_path.read_bytes()
+            encoded = base64.b64encode(img_bytes).decode("utf-8")
+            img_src = f"data:image/png;base64,{encoded}"
+
+            html = f"""
+            <div style='display:flex; align-items:center; gap:8px;'>
+              <img src='{img_src}' width='48' style='display:block;' alt='logo'>
+              <div style='font-size:20px; margin:0;'><h1>DermaNet</h1></div>
+            </div>
+            """
+            st.sidebar.markdown(html, unsafe_allow_html=True)
+        else:
+            st.sidebar.title("DermaNet")
+    except Exception:
+        # If anything goes wrong embedding the image, fall back gracefully.
+        st.sidebar.title("DermaNet")
     # --- Page navigation (placed above weights, like the screenshot) ---
     page_names = list(PAGES.keys())
     default_page = st.session_state.get("page", page_names[0])

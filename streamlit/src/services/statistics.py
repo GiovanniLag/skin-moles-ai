@@ -58,7 +58,7 @@ def risk_factor(probs: dict[str, float]) -> str:
         "squamous cell carcinoma": 1.0,
     }
     risk_score = sum(prob * weights[label.lower()] for label, prob in probs.items() if label.lower() in weights)
-    if risk_score < 0.3:
+    if risk_score < 0.30:
         return "Low"
     elif risk_score < 0.6:
         return "Medium"

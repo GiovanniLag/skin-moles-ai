@@ -8,8 +8,10 @@ from st_click_detector import click_detector
 
 from ..components import prediction_bar
 from ..services import inference, storage, statistics
-from ..services.weighs_registry import get_active_weights, get_spec
+from ..services.weighs_registry import _REGISTRY, get_active_weights, get_spec, set_active_weights
 from ..services.gradcam import generate_gradcam  # Import Grad-CAM service
+
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
 _LAST_CLICKED = ""  # Keep track of the last clicked image to avoid repeated actions
 
@@ -51,8 +53,15 @@ def render() -> None:
     # Weights & spec
     active_weights = get_active_weights()
     if not active_weights:
-        st.error("No model weights selected. Please select model weights in the sidebar.")
-        return
+        try: # try to set default weights if available
+            default_ckpt_path = str(f"{ROOT_DIR}/outputs/dermanet/training/version_0/ckpts/best.ckpt")
+            _REGISTRY["DermaNet-default"] = {"ckpt": default_ckpt_path, "img_size": 224}
+            set_active_weights("DermaNet-default")
+            st.session_state["weights"] = "DermaNet-default"
+            active_weights = get_active_weights()
+        except Exception:
+            st.error("No model weights selected. Please select model weights in the sidebar.")
+            return
     spec = get_spec(active_weights)
     if not spec.get("exists", False):
         st.error(f"Model weights not found: {spec.get('ckpt', 'Unknown path')}")
@@ -61,6 +70,10 @@ def render() -> None:
 
     # Sidebar controls for Grad-CAM
     with st.sidebar:
+        # Add an empty spacer
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # Grad-CAM controls
         st.markdown("### 🔥 Grad-CAM")
         enable_gradcam = st.checkbox("Show Grad-CAM overlay", value=True)
         gradcam_alpha = st.slider("Overlay alpha", min_value=0.1, max_value=0.9, value=0.45, step=0.05)
