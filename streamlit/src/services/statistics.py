@@ -11,7 +11,7 @@ def compute_malignancy_index(
 
     For each group G in {malignant, benign}:
         S_G   = sum of class probabilities in G with p >= threshold
-        HHI_G = normalized Herfindahl–Hirschman index of {p_i / S_G}  (in [0,1])
+        HHI_G = normalized Herfindahl-Hirschman index of {p_i / S_G}  (in [0,1])
         scale_G = (1 - hhi_weight) + hhi_weight * HHI_G
         weighted_G = S_G * scale_G
 
