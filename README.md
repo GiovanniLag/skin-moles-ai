@@ -37,6 +37,12 @@ pip install -r requirements.txt
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu129
 ```
 
+**Download model weights**
+Download the default pretrained weights from:
+- [DermaNet_default.ckpt](https://www.dropbox.com/s/8v3n5g5f4m6x7o0/DermaNet_default.ckpt?dl=1)
+  
+Place the file under `streamlit/weights/DermaNet_default.ckpt` (create the `weights/` folder if it does not exist).
+
 Notes
 - `requirements.txt` contains packages such as `lightning`, `streamlit`, `albumentations`, and `opencv-python-headless`. The repository expects you to install `torch`/`torchvision` separately to match your system CUDA.
 - `kaggle` library is used to download the ISIC 2019 and 2024 datasets. You can use the `data_analysis.ipynb` notebook to download and prepare the datasets.

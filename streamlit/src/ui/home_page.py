@@ -54,7 +54,7 @@ def render() -> None:
     active_weights = get_active_weights()
     if not active_weights:
         try: # try to set default weights if available
-            default_ckpt_path = str(f"{ROOT_DIR}/outputs/dermanet/training/version_0/ckpts/best.ckpt")
+            default_ckpt_path = str(f"{ROOT_DIR}/streamlit/weights/DermaNet_default.ckpt")
             _REGISTRY["DermaNet-default"] = {"ckpt": default_ckpt_path, "img_size": 224}
             set_active_weights("DermaNet-default")
             st.session_state["weights"] = "DermaNet-default"

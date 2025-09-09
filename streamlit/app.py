@@ -111,7 +111,7 @@ def _init_sidebar() -> None:
     # If no selection was made, ensure default checkpoint is used
     if st.session_state.get("weights") is None:
         default_name = "DermaNet-default"
-        default_ckpt = str(f"{ROOT_DIR}/outputs/dermanet/training/version_0/ckpts/best.ckpt")
+        default_ckpt = str(f"{ROOT_DIR}/streamlit/weights/DermaNet_default.ckpt")
         _REGISTRY[default_name] = {"ckpt": default_ckpt, "img_size": 224}
         set_active_weights(default_name)
         st.session_state["weights"] = default_name
