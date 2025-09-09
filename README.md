@@ -80,7 +80,7 @@ Once the app is running, the **Home page** guides you through the workflow:
 Drag and drop or select `.jpg`, `.jpeg`, or `.png` files. The images are stored locally under `streamlit/uploads/` and appear instantly in the gallery.
 
 #### 2. Browse the gallery
-Each uploaded image is shown as a card. Clicking on a card updates the main viewer with that image. On the top right of each card, you can see the **traffic-light indicator** (green / yellow / red) which gives a quick visual cue of the estimated risk. Risk is computed by `statistics.compute_malignancy_index()` as: $\text{risk score} = P(melanoma)\cdot 1.5 + P(basal cell carcinoma)\cdot 1.3 + P(squamous cell carcinoma)\cdot 1.0$.
+Each uploaded image is shown as a card. Clicking on a card updates the main viewer with that image. On the top right of each card, you can see the **traffic-light indicator** (green / yellow / red) which gives a quick visual cue of the estimated risk. Risk is computed by `statistics.risk_factor()` as: $\text{risk score} = P(melanoma)\cdot 1.5 + P(basal cell carcinoma)\cdot 1.3 + P(squamous cell carcinoma)\cdot 1.0$.
 Risk thresholds are set as: green < 0.15, yellow < 0.6, red >= 0.6.
 
 ![Dashboard — Image Gallery](streamlit/assets/imgs/dashboard_image_gallery.png)

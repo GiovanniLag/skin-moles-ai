@@ -128,8 +128,9 @@ def render() -> None:
             selected_image_name = st.session_state.get("selected_image")
             if selected_image_name and selected_image_name in results:
                 preds = results[selected_image_name]
-                malignant_score = statistics.compute_malignancy_index(preds)
-                benign_score = 1.0 - malignant_score
+                binary_scores = statistics.compute_malignancy_index(preds)
+                malignant_score = binary_scores["malignant"]
+                benign_score = binary_scores["benign"]
                 simplified_preds = {"Benign": benign_score, "Malignant": malignant_score}
                 prediction_bar(simplified_preds, use_custom_colors=True)
                 with st.expander("🔍 Show detailed classification"):
