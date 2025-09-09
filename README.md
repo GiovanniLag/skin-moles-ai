@@ -19,6 +19,12 @@ System requirements
 - Python 3.13 recommended (I used 3.13.5).
 - GPU recommended for training and Grad‑CAM inference (PyTorch with CUDA). Install PyTorch / TorchVision using the official instructions for your CUDA: https://pytorch.org/get-started/locally/ (this repo does not pin a specific torch wheel in `requirements.txt`).
 
+Clone this repository:
+
+```bash
+git clone https://github.com/GiovanniLag/skin-moles-ai.git
+```
+
 Create an environment and install dependencies
 
 Example using conda:
