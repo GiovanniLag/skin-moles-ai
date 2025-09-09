@@ -102,6 +102,11 @@ lightning_logs/
 !data/isic2019/isic_2019_common.csv
 
 outputs/byol
+outputs/dermanet/training_test
+outputs/**/*.jpg
+outputs/**/*.png
+
+notebooks/imgs
 
 # Streamlit
 streamlit/uploads/

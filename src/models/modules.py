@@ -81,7 +81,8 @@ class BasicBlockSE(nn.Module):
     """ResNet basic block (2x3x3) with optional downsample and SE."""
     expansion = 1
     def __init__(self, in_ch, out_ch, stride=1, se_ratio=0.25, act='silu'):
-        """Initialize BasicBlockSE.
+        """Initialize BasicBlockSE. Consists of two 3x3 convolutions with BatchNorm and activation.
+        In order: Conv-BN-Act -> Conv-BN -> SE -> Add(Identity/Downsample) -> Act.
 
         If out_ch != in_ch or stride != 1, a downsample layer is added to the identity connection.
 

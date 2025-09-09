@@ -1,0 +1,16 @@
+batch_size: 512
+csv: data/isic2019/isic_2019_common.csv
+devices: 1
+early_stop: 10
+epochs: 100
+experiment_name: training_with_pretrain_epoch20
+gradient_clip_val: 1.0
+img_dir: data/isic2019/ISIC_2019_Training_Input/ISIC_2019_Training_Input
+img_size: 224
+model_cfg: cfgs/dermanet_default.yaml
+num_workers: 8
+output_dir: outputs/dermanet
+precision: 32-true
+pretrain_ckpt: outputs/byol/pretraining_debug/ckpts/byol-epoch=020.ckpt
+resume_version: null
+seed: 42

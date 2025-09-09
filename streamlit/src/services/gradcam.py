@@ -99,8 +99,8 @@ def generate_gradcam(single_image, model_path: str, filenames: Optional[str] = N
         model.zero_grad(set_to_none=True)
         target_score.backward(retain_graph=False)
 
-        act = activations['value']          # [B,C,h,w]
-        grad = gradients['value']           # [B,C,h,w]
+        act = activations['value']  # [B,C,h,w]
+        grad = gradients['value']   # [B,C,h,w]
 
         # Global average pooling over spatial dims for weights
         weights = grad.mean(dim=(2, 3), keepdim=True)  # [B,C,1,1]

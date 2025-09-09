@@ -3,6 +3,7 @@ numpy
 pandas
 matplotlib
 plotly
+kaleido
 nbformat
 tqdm
 rich
