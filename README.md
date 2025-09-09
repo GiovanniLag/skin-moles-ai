@@ -45,7 +45,7 @@ Place the file under `streamlit/weights/DermaNet_default.ckpt` (create the `weig
 
 Notes
 - `requirements.txt` contains packages such as `lightning`, `streamlit`, `albumentations`, and `opencv-python-headless`. The repository expects you to install `torch`/`torchvision` separately to match your system CUDA.
-- `kaggle` library is used to download the ISIC 2019 and 2024 datasets. You can use the `data_analysis.ipynb` notebook to download and prepare the datasets.
+- `kaggle` library is used to download the ISIC 2019 and 2024 datasets. You can use the `data_analysis.ipynb` notebook to download and prepare the datasets. In this case, ensure you have a valid `kaggle.json` API token in your home folder under `.kaggle/kaggle.json` (see https://www.kaggle.com/docs/api for details).
 
 ### Datasets and expected layout
 Supervised training uses a CSV metadata file and an image folder. Scripts expect flags `--csv` and `--img_dir` (see `scripts/train.py`). The ISIC 2019 csv file is provided in:
