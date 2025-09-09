@@ -39,7 +39,7 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu129
 
 **Download model weights**
 Download the default pretrained weights from:
-- [DermaNet_default.ckpt](https://www.dropbox.com/s/8v3n5g5f4m6x7o0/DermaNet_default.ckpt?dl=1)
+- [DermaNet_default.ckpt](https://1drv.ms/u/c/9265c5b9d72e7679/EUgd_VStKx1Kg8-82FUaVS4B3sU_loF9EY0QAzLXyM_zjQ?e=AJBfn1)
   
 Place the file under `streamlit/weights/DermaNet_default.ckpt` (create the `weights/` folder if it does not exist).
 
