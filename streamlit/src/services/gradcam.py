@@ -45,7 +45,7 @@ def _apply_colormap_on_image(img: np.ndarray, cam: np.ndarray, alpha: float = 0.
     return heatmap_img, overlay_img
 
 
-def generate_gradcam(single_image, model_path: str, filenames: Optional[str] = None, target_class: Optional[int] = None, use_prob: bool = True, alpha: float = 0.45) -> GradCAMResult:
+def generate_gradcam(single_image, model_path: str, target_class: Optional[int] = None, use_prob: bool = True, alpha: float = 0.45) -> GradCAMResult:
     """Generate Grad-CAM for a single image.
 
     Parameters
